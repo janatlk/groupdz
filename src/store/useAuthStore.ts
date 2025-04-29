@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import {IUser} from '../types.ts';
 
-
-
 interface AuthState extends IUser {
   setUser: (username: string, id: number) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;

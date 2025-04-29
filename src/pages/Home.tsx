@@ -1,13 +1,9 @@
-import {useAuthStore} from '../store/useAuthStore.ts';
+import { Posts } from '../components/Posts'
 
 export const Home = () => {
- const store = useAuthStore()
 
-  console.log('store', store)
   return (
-    <div>
-      Hello
-    </div>
+      <Posts />
   );
 };
 
