@@ -5,6 +5,7 @@ interface Post {
     id: number;
     title?: string;
     content?: string;
+    extraInfo?: string;
     categoryId?: number;
     createdAt?: string;
 

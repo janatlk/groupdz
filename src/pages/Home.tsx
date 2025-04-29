@@ -1,9 +1,7 @@
-import { Posts } from '../components/Posts'
-
 export const Home = () => {
 
   return (
-      <Posts />
+      <h1>Home Page</h1>
   );
 };
 

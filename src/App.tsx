@@ -5,6 +5,9 @@ import {Register} from './pages/Register.tsx';
 import {Home} from './pages/Home.tsx';
 import {CreatePost} from './pages/CreatePost.tsx';
 import Header from './components/Header.tsx';
+import {Posts} from "./pages/Posts.tsx";
+import PostDetail from './pages/PostDetail'
+import EditPage from './pages/EditPage'
 
 function App() {
 
@@ -14,6 +17,9 @@ function App() {
       <Header/>
       <Routes>
         <Route path={'/'} element={<Home/>}/>
+        <Route path={'/edit-page/:id'} element={<EditPage/>}/>
+        <Route path={'/posts/:id'} element={<PostDetail/>}/>
+        <Route path={'/posts'} element={<Posts/>}/>
         <Route path={'/login'} element={<Login/>}/>
         <Route path={'/register'} element={<Register/>}/>
         <Route path={'/create-post'} element={<CreatePost/>}/>

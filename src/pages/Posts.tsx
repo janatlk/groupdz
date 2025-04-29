@@ -8,6 +8,8 @@ import {
     Card,
     CardContent
 } from '@mui/material';
+import {Link} from "react-router";
+
 
 export const Posts = () => {
     const { posts, getAllPosts } = usePostsStore()
@@ -30,11 +32,20 @@ export const Posts = () => {
                     {posts.map((post) => (
                         <Card key={post.id} sx={{ boxShadow: 3 }}>
                             <CardContent>
-                                <Typography variant="h5" component="h2" gutterBottom>
+                                <Typography
+                                    variant="h5"
+                                    component={Link}
+                                    to={`/posts/${post.id}`}
+                                    sx={{ textDecoration: 'none', color: 'primary.main' }}
+                                    gutterBottom
+                                >
                                     {post.title}
                                 </Typography>
                                 <Typography variant="body1" color="text.secondary">
                                     {post.content}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {post.extraInfo}
                                 </Typography>
                             </CardContent>
                         </Card>
