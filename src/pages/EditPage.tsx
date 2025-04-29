@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     Container,
     Box,
@@ -16,6 +16,7 @@ import {
     SelectChangeEvent,
 } from '@mui/material';
 import axiosApi from '../axiosApi';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface Post {
     id: number;
@@ -33,6 +34,8 @@ interface Category {
 const EditPost: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { accessToken } = useAuthStore();
+    const isAuthenticated = !!accessToken;
     const [post, setPost] = useState<Post | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [formData, setFormData] = useState({
@@ -42,21 +45,27 @@ const EditPost: React.FC = () => {
     });
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const isAuthenticated = !!localStorage.getItem('token');
+
+    console.log('EditPost rendering:', { isAuthenticated, accessToken });
 
     useEffect(() => {
+        console.log('EditPost auth check:', { isAuthenticated, accessToken });
         if (!isAuthenticated) {
+            console.log('Redirecting to /login');
             navigate('/login', { replace: true });
         }
     }, [isAuthenticated, navigate]);
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!id) return;
+            if (!id) {
+                console.log('No post ID');
+                return;
+            }
             try {
                 setIsLoading(true);
                 setError(null);
-
+                console.log('Fetching post ID:', id);
                 const postResponse = await axiosApi.get<Post>(`/posts/${id}`);
                 setPost(postResponse.data);
                 setFormData({
@@ -64,10 +73,11 @@ const EditPost: React.FC = () => {
                     content: postResponse.data.content,
                     categoryId: postResponse.data.categoryId ?? '',
                 });
-
+                console.log('Fetching categories');
                 const categoriesResponse = await axiosApi.get<Category[]>('/categories');
                 setCategories(categoriesResponse.data);
-            } catch (err) {
+            } catch (err: any) {
+                console.error('Fetch error:', err.response?.status, err.message);
                 setError(err instanceof Error ? err.message : 'Failed to load data');
             } finally {
                 setIsLoading(false);
@@ -75,24 +85,19 @@ const EditPost: React.FC = () => {
         };
 
         if (isAuthenticated) {
+            console.log('Starting fetchData');
             fetchData();
         }
     }, [id, isAuthenticated]);
 
     const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSelectChange = (e: SelectChangeEvent<number | string>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -101,17 +106,19 @@ const EditPost: React.FC = () => {
             setError('Title and content are required');
             return;
         }
-
         try {
             setIsLoading(true);
             setError(null);
+            console.log('Submitting:', formData);
             await axiosApi.put(`/posts/${id}`, {
                 title: formData.title,
                 content: formData.content,
                 categoryId: formData.categoryId === '' ? undefined : Number(formData.categoryId),
             });
+            console.log('Post updated');
             navigate(`/posts/${id}`, { replace: true });
-        } catch (err) {
+        } catch (err: any) {
+            console.error('Update error:', err.response?.status, err.message);
             setError(err instanceof Error ? err.message : 'Failed to update post');
         } finally {
             setIsLoading(false);

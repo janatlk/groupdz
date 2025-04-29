@@ -26,7 +26,7 @@ const PostDetail: React.FC = () => {
     const [post, setPost] = useState<Post | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const isAuthenticated = !!localStorage.getItem('token');
+    const isAuthenticated = !!localStorage.getItem('accessToken');
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -105,18 +105,10 @@ const PostDetail: React.FC = () => {
                 </CardContent>
                 {isAuthenticated && (
                     <Box sx={{ p: 2, display: 'flex', gap: 2 }}>
-                        <Button
-                            variant="contained"
-                            color="error"
-                            onClick={ handleDelete }
-                        >
+                        <Button variant="contained" color="error" onClick={handleDelete}>
                             Delete Post
                         </Button>
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            onClick={() => navigate(`/edit-post/${id}`)}
-                        >
+                        <Button variant="outlined" color="primary" onClick={() => navigate(`/edit-page/${id}`)}>
                             Edit Post
                         </Button>
                     </Box>

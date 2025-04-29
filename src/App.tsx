@@ -8,6 +8,7 @@ import Header from './components/Header.tsx';
 import {Posts} from "./pages/Posts.tsx";
 import PostDetail from './pages/PostDetail'
 import EditPage from './pages/EditPage'
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
 
@@ -17,7 +18,7 @@ function App() {
       <Header/>
       <Routes>
         <Route path={'/'} element={<Home/>}/>
-        <Route path={'/edit-page/:id'} element={<EditPage/>}/>
+          <Route path={'/edit-page/:id'} element={<ProtectedRoute><EditPage /></ProtectedRoute>}/>
         <Route path={'/posts/:id'} element={<PostDetail/>}/>
         <Route path={'/posts'} element={<Posts/>}/>
         <Route path={'/login'} element={<Login/>}/>
