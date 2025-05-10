@@ -16,7 +16,6 @@ import {
     SelectChangeEvent,
 } from '@mui/material';
 import axiosApi from '../axiosApi';
-import { useAuthStore } from '../store/useAuthStore';
 
 interface Post {
     id: number;
@@ -34,8 +33,6 @@ interface Category {
 const EditPost: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { accessToken } = useAuthStore();
-    const isAuthenticated = !!accessToken;
     const [post, setPost] = useState<Post | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [formData, setFormData] = useState({
@@ -46,20 +43,11 @@ const EditPost: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    console.log('EditPost rendering:', { isAuthenticated, accessToken });
-
-    useEffect(() => {
-        console.log('EditPost auth check:', { isAuthenticated, accessToken });
-        if (!isAuthenticated) {
-            console.log('Redirecting to /login');
-            navigate('/login', { replace: true });
-        }
-    }, [isAuthenticated, navigate]);
-
     useEffect(() => {
         const fetchData = async () => {
             if (!id) {
                 console.log('No post ID');
+                setError('Post ID is missing');
                 return;
             }
             try {
@@ -67,6 +55,7 @@ const EditPost: React.FC = () => {
                 setError(null);
                 console.log('Fetching post ID:', id);
                 const postResponse = await axiosApi.get<Post>(`/posts/${id}`);
+                console.log('Post data:', postResponse.data);
                 setPost(postResponse.data);
                 setFormData({
                     title: postResponse.data.title,
@@ -77,18 +66,15 @@ const EditPost: React.FC = () => {
                 const categoriesResponse = await axiosApi.get<Category[]>('/categories');
                 setCategories(categoriesResponse.data);
             } catch (err: any) {
-                console.error('Fetch error:', err.response?.status, err.message);
-                setError(err instanceof Error ? err.message : 'Failed to load data');
+                console.error('Fetch error:', err.response?.status, err.response?.data);
+                setError(err.response?.data?.message || JSON.stringify(err.response?.data) || 'Failed to load data');
             } finally {
                 setIsLoading(false);
             }
         };
 
-        if (isAuthenticated) {
-            console.log('Starting fetchData');
-            fetchData();
-        }
-    }, [id, isAuthenticated]);
+        fetchData();
+    }, [id]);
 
     const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -109,17 +95,22 @@ const EditPost: React.FC = () => {
         try {
             setIsLoading(true);
             setError(null);
-            console.log('Submitting:', formData);
-            await axiosApi.put(`/posts/${id}`, {
+            const payload = {
                 title: formData.title,
                 content: formData.content,
-                categoryId: formData.categoryId === '' ? undefined : Number(formData.categoryId),
-            });
+                category_id: formData.categoryId === '' ? null : Number(formData.categoryId),
+            };
+            console.log('Submitting:', JSON.stringify(payload, null, 2));
+            await axiosApi.put(`/posts/${id}`, payload);
             console.log('Post updated');
             navigate(`/posts/${id}`, { replace: true });
         } catch (err: any) {
-            console.error('Update error:', err.response?.status, err.message);
-            setError(err instanceof Error ? err.message : 'Failed to update post');
+            console.error('Update error:', err.response?.status, err.response?.data);
+            const errorMessage = err.response?.data?.message ||
+                err.response?.data?.category_id?.[0] ||
+                JSON.stringify(err.response?.data) ||
+                'Failed to update post';
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }

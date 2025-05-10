@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import {IUser} from '../types.ts';
+import { IUser } from '../types';
 
 interface AuthState extends IUser {
   setUser: (username: string, id: number) => void;
@@ -8,10 +8,10 @@ interface AuthState extends IUser {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  id:null,
+  id: null,
   username: null,
-  accessToken: null,
-  refreshToken: null,
+  accessToken: localStorage.getItem('accessToken') || null,
+  refreshToken: localStorage.getItem('refreshToken') || null,
   setUser: (username, id) => {
     set({ username, id });
   },

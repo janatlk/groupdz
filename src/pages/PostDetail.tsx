@@ -15,8 +15,8 @@ interface Post {
     id: number;
     title: string;
     content: string;
-    categoryId?: number;
-    createdAt?: string;
+    categoryId: number;
+    createdAt: string;
     categoryName?: string;
 }
 
@@ -88,6 +88,9 @@ const PostDetail: React.FC = () => {
                 <CardContent>
                     <Typography variant="h4" component="h1" gutterBottom>
                         {post.title}
+                    </Typography>
+                    <Typography variant="h2" component="h4" gutterBottom>
+                        {post.categoryName}
                     </Typography>
                     {post.categoryName && (
                         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
