@@ -1,94 +1,115 @@
-import {useState} from 'react';
-import {Box, Button, Container, Paper, TextField, Typography} from '@mui/material';
-import axiosApi from '../axiosApi.ts';
-import {useNavigate} from 'react-router';
-import {IAuth} from '../types.ts';
+import { useState } from 'react';
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+} from '@mui/material';
+import api from '../axiosApi.ts';
+import { useNavigate } from 'react-router';
+import { IAuth } from '../types.ts';
 
-export const Register = () => {
-  const navigate = useNavigate();
+export const SignUp = () => {
+  const nav = useNavigate();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [repeatPassword, setRepeatPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [form, setForm] = useState({
+    user: '',
+    pass: '',
+    confirm: '',
+  });
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError('');
+  const updateField = (key: string, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const submitRegistration = async () => {
+    setBusy(true);
+    setMessage('');
+    if (form.pass !== form.confirm) {
+      setMessage('Password mismatch.');
+      setBusy(false);
+      return;
+    }
+
     try {
-      if (password !== repeatPassword) {
-        setError('Passwords do not match!');
-        return;
-      }
-
-      const requestData: IAuth = { username, password, password_confirm: repeatPassword };
-      await axiosApi.post('/users/', requestData);
-
-      navigate('/login');
-    } catch (error) {
-      setError('Registration failed. Try another username.');
-      console.error(error);
+      const payload: IAuth = {
+        username: form.user,
+        password: form.pass,
+        password_confirm: form.confirm,
+      };
+      await api.post('/users/', payload);
+      nav('/login');
+    } catch (err) {
+      console.error(err);
+      setMessage('Could not register. Username might be taken.');
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   };
 
   return (
     <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 8, borderRadius: 3 }}>
-        <Typography variant="h5" align="center" gutterBottom>Register</Typography>
-
-        <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+      <Paper elevation={4} sx={{ padding: 4, marginTop: 10, borderRadius: 2 }}>
+        <Typography variant="h6" align="center" gutterBottom>
+          Create Account
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitRegistration();
+          }}
+        >
           <TextField
+            label="Login"
             fullWidth
-            label="Username"
-            variant="outlined"
             margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            variant="outlined"
             required
+            value={form.user}
+            onChange={(e) => updateField('user', e.target.value)}
           />
-
           <TextField
+            label="Secret"
             fullWidth
-            label="Password"
-            variant="outlined"
             margin="normal"
+            variant="outlined"
+            required
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            value={form.pass}
+            onChange={(e) => updateField('pass', e.target.value)}
           />
-
           <TextField
+            label="Confirm Secret"
             fullWidth
-            label="Repeat Password"
-            variant="outlined"
             margin="normal"
-            type="password"
-            value={repeatPassword}
-            onChange={(e) => setRepeatPassword(e.target.value)}
+            variant="outlined"
             required
+            type="password"
+            value={form.confirm}
+            onChange={(e) => updateField('confirm', e.target.value)}
           />
-
-          {error && (
-            <Typography variant="body2" color="error" sx={{ mt: 1 }}>{error}</Typography>
+          {message && (
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {message}
+            </Typography>
           )}
-
           <Button
             type="submit"
+            fullWidth
             variant="contained"
             color="primary"
-            fullWidth
-            disabled={loading}
             sx={{ mt: 3, borderRadius: 2 }}
+            disabled={busy}
           >
-            Register
+            Sign Up
           </Button>
         </Box>
       </Paper>
     </Container>
   );
 };
-

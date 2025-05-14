@@ -6,9 +6,13 @@ export const Home = () => {
 
   return (
       <div style={{ justifyContent: 'center' }}>
-        <h1>Home Page</h1>
+        <h1>main page</h1>
         <Button variant="outlined" color="primary" onClick={() => navigate(`/posts`)}>
-          All Posts
+          
+
+          all posts
+
+
         </Button>
       </div>
   );
